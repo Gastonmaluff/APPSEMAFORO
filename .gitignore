@@ -1,0 +1,48 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build output
+web/dist/
+functions/lib/
+web/dev-dist/
+
+# Environment / secrets — NEVER commit real values
+.env
+.env.local
+.env.*.local
+web/.env
+web/.env.local
+*.secret
+*secret*.txt
+webhook.secret
+serviceAccount*.json
+service-account*.json
+*-adminsdk-*.json
+
+# Firebase
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+database-debug.log
+ui-debug.log
+firestore-debug.log
+pubsub-debug.log
+.runtimeconfig.json
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Editor / OS / local tooling
+.claude/
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Test / coverage
+coverage/
+.vitest/

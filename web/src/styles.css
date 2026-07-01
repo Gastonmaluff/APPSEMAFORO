@@ -1,0 +1,471 @@
+:root {
+  --ink: #f8fafc;
+  --ink-dim: rgba(248, 250, 252, 0.72);
+  --ink-faint: rgba(248, 250, 252, 0.5);
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family:
+    "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+  background: #111318;
+  color: var(--ink);
+  user-select: none;
+  overscroll-behavior: none;
+}
+
+/* ============ SEMÁFORO ============ */
+.beacon {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: max(2vh, env(safe-area-inset-top)) 4vw;
+  transition:
+    background 900ms ease,
+    color 600ms ease;
+  cursor: pointer;
+}
+
+.beacon-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.6rem, 2.2vh, 1.6rem);
+  max-width: 96vw;
+}
+
+.big-word {
+  margin: 0;
+  font-weight: 900;
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+  font-size: clamp(3.2rem, 19vw, 17rem);
+  text-shadow: 0 6px 40px rgba(0, 0, 0, 0.35);
+}
+
+.hint {
+  font-weight: 800;
+  font-size: clamp(1rem, 4.2vw, 2.6rem);
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  opacity: 0.95;
+}
+
+.details {
+  display: flex;
+  gap: 0.6ch;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-size: clamp(1rem, 3.4vw, 2.2rem);
+  font-weight: 700;
+  color: var(--ink-dim);
+}
+.details .sep {
+  opacity: 0.5;
+}
+
+.metrics {
+  display: flex;
+  gap: 1.4ch;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-size: clamp(0.85rem, 2.4vw, 1.5rem);
+  font-weight: 600;
+  color: var(--ink-faint);
+}
+.metrics em {
+  font-style: normal;
+  opacity: 0.75;
+}
+
+.config-warning {
+  margin-top: 1rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fde68a;
+}
+
+/* ---- estados de color ---- */
+.state-running {
+  background: radial-gradient(circle at 50% 40%, #2563eb, #1230a3 75%);
+  animation: pulse 2.6s ease-in-out infinite;
+}
+.state-success {
+  background: radial-gradient(circle at 50% 40%, #16a34a, #0d6b31 78%);
+}
+.state-failed {
+  background: radial-gradient(circle at 50% 40%, #ef4444, #a11212 78%);
+  animation: alert-flash 1.6s ease-in-out infinite;
+}
+.state-attention {
+  background: radial-gradient(circle at 50% 40%, #f59e0b, #c2620a 80%);
+  color: #201400;
+  animation: attention-breathe 3s ease-in-out infinite;
+}
+.state-attention .details,
+.state-attention .metrics {
+  color: rgba(32, 20, 0, 0.72);
+}
+.state-unknown {
+  background: radial-gradient(circle at 50% 40%, #313846, #171a20 80%);
+}
+
+/* Verde: al confirmar hace un breve zoom y luego queda estable. */
+.state-success.confirming {
+  animation: success-pop 1.4s ease-out;
+}
+.confirm-check {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: clamp(6rem, 40vw, 30rem);
+  color: rgba(255, 255, 255, 0.9);
+  pointer-events: none;
+  animation: check-in 3.5s ease-out forwards;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.22);
+  }
+}
+@keyframes alert-flash {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.28);
+  }
+}
+@keyframes attention-breathe {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.12);
+  }
+}
+@keyframes success-pop {
+  0% {
+    transform: scale(1.04);
+    filter: brightness(1.35);
+  }
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+}
+@keyframes check-in {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  18% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .state-running,
+  .state-failed,
+  .state-attention,
+  .state-success.confirming {
+    animation: none;
+  }
+}
+
+/* ============ ACTIVACIÓN ============ */
+.activation-layer {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  gap: 1rem;
+  grid-auto-flow: row;
+  background: rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(2px);
+}
+.activate-btn {
+  font-size: clamp(1.2rem, 4vw, 2.4rem);
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  padding: 1.1em 1.6em;
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  cursor: pointer;
+  transition: transform 120ms ease, background 200ms ease;
+}
+.activate-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+  transform: scale(1.03);
+}
+.activation-note {
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 600;
+  margin: 0;
+}
+
+/* ============ CONTROLES ============ */
+.controls-layer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  padding: 1rem;
+  animation: rise 200ms ease-out;
+}
+@keyframes rise {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+.controls {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  background: rgba(10, 12, 16, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 0.6rem 0.8rem;
+  backdrop-filter: blur(8px);
+}
+.ctl {
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #f8fafc;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 10px;
+  padding: 0.5rem 0.9rem;
+  cursor: pointer;
+}
+.ctl:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+.ctl.primary {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+.wake-pill {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.4rem 0.7rem;
+  border-radius: 999px;
+}
+.wake-pill.on {
+  color: #86efac;
+}
+.wake-pill.off {
+  color: var(--ink-faint);
+}
+
+/* ============ CONFIG ============ */
+.config {
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  padding: clamp(1rem, 4vw, 2.5rem);
+  max-width: 900px;
+  margin: 0 auto;
+}
+.config-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  position: sticky;
+  top: 0;
+  background: #111318;
+  padding-bottom: 1rem;
+}
+.config h2 {
+  margin: 0;
+  font-size: 1.8rem;
+}
+.config-section {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1.2rem 0;
+}
+.config-section h3 {
+  margin: 0 0 0.8rem;
+  font-size: 1.1rem;
+  color: var(--ink-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.config select,
+.config input[type="text"],
+.config input[type="number"] {
+  font: inherit;
+  color: #f8fafc;
+  background: #1b1f27;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+  padding: 0.5rem 0.7rem;
+}
+.config select {
+  width: 100%;
+  max-width: 420px;
+  margin-bottom: 1rem;
+}
+.switch {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 600;
+  margin: 0.6rem 0;
+  cursor: pointer;
+}
+.inline {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0.4rem 0 0.8rem;
+}
+.inline input {
+  width: 6rem;
+}
+.ok {
+  color: #4ade80;
+}
+.bad {
+  color: #f87171;
+}
+.muted {
+  color: var(--ink-faint);
+}
+.repo-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+.repo-item {
+  background: #1b1f27;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+}
+.repo-line {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.repo-controls {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+  margin-top: 0.7rem;
+  flex-wrap: wrap;
+}
+.repo-controls input {
+  flex: 1;
+  min-width: 160px;
+}
+.repo-controls a,
+.config a {
+  color: #60a5fa;
+  font-weight: 600;
+}
+.dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #64748b;
+  flex: none;
+}
+.dot.running {
+  background: #3b82f6;
+}
+.dot.success {
+  background: #22c55e;
+}
+.dot.failed {
+  background: #ef4444;
+}
+.dot.attention {
+  background: #f59e0b;
+}
+.dot.unknown {
+  background: #64748b;
+}
+.test-colors {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.test-swatch {
+  font: inherit;
+  font-weight: 800;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 0.8rem 1.1rem;
+  cursor: pointer;
+}
+.test-swatch.state-attention {
+  color: #201400;
+}
+.preview-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  animation: none;
+}
+.preview-tap {
+  position: fixed;
+  bottom: 8vh;
+  font-weight: 600;
+  opacity: 0.8;
+}
