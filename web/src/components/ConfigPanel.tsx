@@ -125,6 +125,19 @@ export function ConfigPanel({
           />
           Sonar alerta al finalizar o fallar
         </label>
+
+        <label className="inline">
+          Minutos en verde antes de pasar a “EN ESPERA”:
+          <input
+            type="number"
+            min={1}
+            max={120}
+            value={prefs.greenHoldMinutes}
+            onChange={(e) =>
+              update({ greenHoldMinutes: Math.max(1, Number(e.target.value) || 3) })
+            }
+          />
+        </label>
       </section>
 
       <section className="config-section">

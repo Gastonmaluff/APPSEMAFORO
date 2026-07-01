@@ -28,6 +28,7 @@ export interface DisplayMeta {
 export type VisualState =
   | "running"
   | "success"
+  | "waiting"
   | "failed"
   | "attention"
   | "stale"

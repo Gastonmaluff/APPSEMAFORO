@@ -3,6 +3,13 @@ import type { AppStatus, DisplayRecord, VisualState } from "./types";
 /** Minutos sin actualización tras los cuales un run "running" se marca estancado. */
 export const STALE_AFTER_MINUTES = 15;
 
+/**
+ * Minutos que el verde ("LISTO") permanece visible tras completarse. Pasado ese
+ * tiempo la pantalla vuelve a gris "EN ESPERA" (con spinner), para no confundir
+ * un verde viejo con el de un deploy nuevo. Se calcula en el cliente.
+ */
+export const GREEN_HOLD_MINUTES = 3;
+
 export interface VisualDef {
   bigText: string;
   className: string;
@@ -13,6 +20,7 @@ export interface VisualDef {
 const BASE: Record<VisualState, VisualDef> = {
   running: { bigText: "EJECUTANDO", className: "state-running" },
   success: { bigText: "LISTO", className: "state-success" },
+  waiting: { bigText: "EN ESPERA", className: "state-waiting" },
   failed: { bigText: "FALLÓ", className: "state-failed" },
   attention: { bigText: "ATENCIÓN", className: "state-attention" },
   stale: {
@@ -50,6 +58,7 @@ export function computeVisual(
   record: DisplayRecord | null,
   connected: boolean,
   nowMs: number,
+  greenHoldMinutes: number = GREEN_HOLD_MINUTES,
 ): { state: VisualState; def: VisualDef } {
   if (!connected) return { state: "offline", def: BASE.offline };
   if (!record || !record.status) return { state: "unknown", def: BASE.unknown };
@@ -65,6 +74,16 @@ export function computeVisual(
     return { state: "running", def: BASE.running };
   }
 
+  if (status === "success") {
+    // El verde se mantiene unos minutos y luego pasa a gris "EN ESPERA".
+    const ref = Date.parse(record.completedAt || record.updatedAt);
+    const ageMin = (nowMs - ref) / 60000;
+    if (Number.isFinite(ageMin) && ageMin > greenHoldMinutes) {
+      return { state: "waiting", def: BASE.waiting };
+    }
+    return { state: "success", def: BASE.success };
+  }
+
   if (status === "attention") {
     return {
       state: "attention",
@@ -72,7 +91,6 @@ export function computeVisual(
     };
   }
 
-  const known: VisualState =
-    status === "success" ? "success" : status === "failed" ? "failed" : "unknown";
+  const known: VisualState = status === "failed" ? "failed" : "unknown";
   return { state: known, def: BASE[known] };
 }

@@ -58,6 +58,7 @@ export function Beacon({
   return (
     <main className={rootClass} onClick={onReveal} role="status" aria-live="polite">
       <div className="beacon-center">
+        {state === "waiting" && <div className="spinner" aria-hidden="true" />}
         <h1 className="big-word">{def.bigText}</h1>
 
         {def.hint && <div className="hint">{def.hint}</div>}

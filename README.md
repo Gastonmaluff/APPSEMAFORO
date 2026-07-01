@@ -9,13 +9,19 @@ El color ocupa toda la pantalla:
 | Color | Estado | Palabra | Significado |
 |-------|--------|---------|-------------|
 | 🔵 Azul | `running` | **EJECUTANDO** | El workflow de deploy está encolado / en progreso. |
-| 🟢 Verde | `success` | **LISTO** | El deploy de producción terminó **con éxito**. |
+| 🟢 Verde | `success` | **LISTO** | El deploy de producción terminó **con éxito** (se mantiene unos minutos). |
+| ⚫ Gris + spinner | `waiting` | **EN ESPERA** | Pasaron los minutos de verde; a la espera del próximo deploy. |
 | 🔴 Rojo | `failed` | **FALLÓ** | El workflow falló o expiró (`failure` / `timed_out`). |
 | 🟡 Ámbar | `attention` | **ATENCIÓN** | Cancelado, requiere acción o quedó obsoleto. |
 | ⚫ Gris | `unknown` / `offline` | **SIN DATOS / SIN CONEXIÓN** | Sin información o sin conexión a Firebase. |
 
 > El **verde solo aparece cuando el workflow de deploy real terminó en
 > `success`**. Un simple `push` o `commit` nunca marca verde por sí mismo.
+>
+> El verde **no es eterno**: tras unos minutos (configurable, por defecto 3) la
+> pantalla vuelve a gris **EN ESPERA** con un spinner. Así un verde viejo no se
+> confunde con el de tu último commit: cada deploy nuevo reinicia el ciclo
+> azul → verde → espera. El umbral se ajusta desde el panel ⚙.
 
 Si un run queda "ejecutando" sin novedades por más de 15 minutos, la pantalla
 pasa a ámbar con el aviso **POSIBLEMENTE ESTANCADO** (se calcula en el cliente,

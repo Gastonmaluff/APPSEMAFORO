@@ -68,7 +68,12 @@ export default function App() {
     rawRecord && focusRepoId && prefs.aliases[focusRepoId]
       ? { ...rawRecord, displayName: prefs.aliases[focusRepoId] as string }
       : rawRecord;
-  const { state, def } = computeVisual(record, data.connected, now);
+  const { state, def } = computeVisual(
+    record,
+    data.connected,
+    now,
+    prefs.greenHoldMinutes,
+  );
 
   // Alertas sonoras al cambiar a LISTO / FALLÓ.
   useEffect(() => {

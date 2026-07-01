@@ -54,10 +54,37 @@ describe("computeVisual", () => {
     expect(def.hint).toBe("POSIBLEMENTE ESTANCADO");
   });
 
-  it("success -> LISTO", () => {
-    const { state, def } = computeVisual(rec({ status: "success" }), true, now);
+  it("success reciente -> LISTO (verde)", () => {
+    const completedAt = new Date(now - 30 * 1000).toISOString();
+    const { state, def } = computeVisual(
+      rec({ status: "success", completedAt }),
+      true,
+      now,
+    );
     expect(state).toBe("success");
     expect(def.bigText).toBe("LISTO");
+  });
+
+  it("success viejo -> EN ESPERA (gris con spinner)", () => {
+    const completedAt = new Date(now - 10 * 60 * 1000).toISOString();
+    const { state, def } = computeVisual(
+      rec({ status: "success", completedAt }),
+      true,
+      now,
+    );
+    expect(state).toBe("waiting");
+    expect(def.bigText).toBe("EN ESPERA");
+  });
+
+  it("greenHoldMinutes configurable controla la transición a espera", () => {
+    const completedAt = new Date(now - 5 * 60 * 1000).toISOString();
+    // Con hold de 10 min sigue verde; con hold de 2 min pasa a espera.
+    expect(computeVisual(rec({ status: "success", completedAt }), true, now, 10).state).toBe(
+      "success",
+    );
+    expect(computeVisual(rec({ status: "success", completedAt }), true, now, 2).state).toBe(
+      "waiting",
+    );
   });
 
   it("failed -> FALLÓ", () => {

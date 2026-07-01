@@ -12,6 +12,8 @@ export interface Prefs {
   beaconActivated: boolean;
   /** Alias visibles locales por repoId (sobrescriben el del backend). */
   aliases: Record<string, string>;
+  /** Minutos que el verde permanece antes de pasar a gris "EN ESPERA". */
+  greenHoldMinutes: number;
 }
 
 const KEY = "semaforo:prefs:v1";
@@ -23,6 +25,7 @@ export const DEFAULT_PREFS: Prefs = {
   sound: false,
   beaconActivated: false,
   aliases: {},
+  greenHoldMinutes: 3,
 };
 
 export function loadPrefs(): Prefs {
