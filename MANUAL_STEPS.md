@@ -1,29 +1,20 @@
 # Pasos manuales pendientes
 
-Solo queda **una** acción que no puedo automatizar porque requiere tu
-autorización de facturación:
+**No queda ningún paso manual pendiente.** ✅
 
-## ✅ Activar el plan Blaze en el proyecto Firebase
+El único bloqueo (activar el plan **Blaze** en `steamdeck-semaforo`) ya fue
+resuelto por el usuario, y a partir de ahí todo se completó automáticamente:
+secreto en Secret Manager, deploy de la Cloud Function, webhooks en los 4 repos,
+verificación de `ping` y prueba real de deploy (azul → verde) más simulación
+firmada de fallo (rojo), idempotencia y rechazo de repos no autorizados.
 
-Firebase Cloud Functions (2ª gen) y Secret Manager exigen el plan
-**Blaze (pago por uso)**. Tiene una cuota gratuita generosa; para este semáforo
-el costo esperado es prácticamente nulo, pero Google pide una tarjeta.
+## Operación normal (referencia, no requiere acción)
 
-1. Entrá a:
-   **https://console.firebase.google.com/project/steamdeck-semaforo/usage/details**
-2. Clic en **Modify plan / Upgrade** → elegí **Blaze**.
-3. Asociá (o creá) una cuenta de facturación y confirmá.
+- **Abrir en la Steam Deck:** https://steamdeck-semaforo.web.app → botón
+  **ACTIVAR MODO SEMÁFORO** (pantalla completa + wake lock).
+- **Agregar otro repo:** ver la sección correspondiente del `README.md`.
+- **Rotar el secreto / eliminar accesos:** ver `SECURITY.md`.
 
-> Opcional recomendado: en la consola de Google Cloud podés fijar un
-> **presupuesto con alerta** (por ejemplo 1 USD) para enterarte si algo se
-> dispara.
-
-Cuando esté activo, avisame y continúo automáticamente con:
-
-- registrar el secreto del webhook en Secret Manager (ya está generado),
-- desplegar la Cloud Function `githubWebhook`,
-- crear los webhooks `workflow_run` en los repos monitoreados,
-- verificar el `ping` y correr una prueba real de deploy,
-- finalizar `DELIVERY_REPORT.md`.
-
-Ningún otro paso queda a tu cargo.
+> Recomendación opcional: fijá un presupuesto con alerta en Google Cloud Billing
+> para el proyecto (el uso esperado entra en la cuota gratuita, pero es buena
+> práctica). Consola: Billing → Budgets & alerts.
