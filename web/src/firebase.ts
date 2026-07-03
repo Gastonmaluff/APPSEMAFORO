@@ -7,6 +7,7 @@ import {
   type Unsubscribe,
 } from "firebase/database";
 import type { DisplayMeta, DisplayRecord } from "./types";
+import type { AgentRecord, AgentsState } from "./agents/types";
 
 export const DISPLAY_ID = "deck";
 
@@ -47,6 +48,20 @@ export function subscribeMeta(cb: (meta: DisplayMeta | null) => void): Unsubscri
   if (!db) return () => {};
   const r = ref(db, `displays/${DISPLAY_ID}/meta`);
   return onValue(r, (snap) => cb((snap.val() as DisplayMeta) ?? null));
+}
+
+/** Escucha el estado de ambos agentes (Claude Code / Codex) en tiempo real. */
+export function subscribeAgents(cb: (state: AgentsState) => void): Unsubscribe {
+  if (!db) return () => {};
+  const r = ref(db, "agents");
+  return onValue(r, (snap) => {
+    const val = (snap.val() as Record<string, unknown>) ?? {};
+    cb({
+      claude: (val.claude as AgentRecord) ?? null,
+      codex: (val.codex as AgentRecord) ?? null,
+      meta: (val.meta as AgentsState["meta"]) ?? null,
+    });
+  });
 }
 
 /** Estado de conexión de Firebase (nodo especial `.info/connected`). */

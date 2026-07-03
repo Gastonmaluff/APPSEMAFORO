@@ -16,6 +16,13 @@
           }
         }
       }
+    },
+    "agents": {
+      ".read": true,
+      ".write": false,
+      "$agentId": {
+        ".validate": "$agentId == 'claude' || $agentId == 'codex' || $agentId == 'meta' || $agentId == '_events'"
+      }
     }
   }
 }

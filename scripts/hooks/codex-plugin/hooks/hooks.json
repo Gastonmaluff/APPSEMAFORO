@@ -1,0 +1,40 @@
+{
+  "_comment": "Hooks locales de Codex para el semáforo de agentes. Codex usa el mismo formato de hooks que Claude Code (stdin JSON con session_id/cwd, matcher, comando). UserPromptSubmit->working, Stop->completed, SessionEnd->fin. Estos hooks pueden requerir revisión de confianza vía /hooks (trust por hash sha256 en config.toml). Ajustá la ruta absoluta del forwarder si moviste el repo.",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\gafa9\\OneDrive\\Escritorio\\WEBAPP STEAMDECK\\scripts\\agent-hook-forwarder.mjs\" --source codex --event start",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\gafa9\\OneDrive\\Escritorio\\WEBAPP STEAMDECK\\scripts\\agent-hook-forwarder.mjs\" --source codex --event stop",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\gafa9\\OneDrive\\Escritorio\\WEBAPP STEAMDECK\\scripts\\agent-hook-forwarder.mjs\" --source codex --event session_end",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

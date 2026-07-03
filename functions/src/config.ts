@@ -61,3 +61,16 @@ export const MONITORED: Record<string, MonitoredRepo> = {
 
 /** Nombre de la variable/secreto que guarda el HMAC del webhook. */
 export const WEBHOOK_SECRET_NAME = "GH_WEBHOOK_SECRET";
+
+/**
+ * Nombre del secreto compartido que autentica al forwarder local de agentes.
+ * Se envía en el header `X-Agent-Secret` y vive SOLO en Secret Manager y en la
+ * config local (gitignored) del forwarder. Nunca en el frontend ni en el repo.
+ */
+export const AGENT_HOOK_SECRET_NAME = "AGENT_HOOK_SECRET";
+
+/** Alias visible de cada agente en la pantalla. */
+export const AGENTS: Record<"claude" | "codex", { displayName: string }> = {
+  claude: { displayName: "Claude Code" },
+  codex: { displayName: "Codex" },
+};

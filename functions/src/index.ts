@@ -12,6 +12,10 @@ const WEBHOOK_SECRET = defineSecret(WEBHOOK_SECRET_NAME);
 
 initializeApp();
 
+// Endpoint de los hooks locales de agentes (Claude Code / Codex). Vive en el
+// mismo despliegue pero es independiente del webhook de GitHub.
+export { agentHook } from "./agentHook";
+
 /** TTL de registros de idempotencia (7 días). */
 const DELIVERY_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 

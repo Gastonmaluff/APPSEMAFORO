@@ -12,8 +12,14 @@ export interface Prefs {
   beaconActivated: boolean;
   /** Alias visibles locales por repoId (sobrescriben el del backend). */
   aliases: Record<string, string>;
-  /** Minutos que el verde permanece antes de pasar a gris "EN ESPERA". */
+  /** Minutos que el verde de GitHub permanece antes de pasar a gris "EN ESPERA". */
   greenHoldMinutes: number;
+  /** Segundos que un agente permanece en verde ("LISTO") tras completar. */
+  agentGreenHoldSec: number;
+  /** Segundos que un agente permanece en rojo ("ERROR") tras fallar. */
+  agentErrorHoldSec: number;
+  /** Minutos sin actividad tras los cuales una tarea de agente se considera huérfana. */
+  agentOrphanMin: number;
 }
 
 const KEY = "semaforo:prefs:v1";
@@ -26,6 +32,9 @@ export const DEFAULT_PREFS: Prefs = {
   beaconActivated: false,
   aliases: {},
   greenHoldMinutes: 3,
+  agentGreenHoldSec: 120,
+  agentErrorHoldSec: 300,
+  agentOrphanMin: 10,
 };
 
 export function loadPrefs(): Prefs {

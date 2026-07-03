@@ -1,0 +1,49 @@
+{
+  "_comment": "Bloque `hooks` para FUSIONAR (no reemplazar) en %USERPROFILE%\\.claude\\settings.json. Ajustá la ruta absoluta del forwarder si moviste el repo. UserPromptSubmit->working, Stop->completed, StopFailure->error, SessionEnd->fin de sesión. timeout corto para no demorar al agente; el forwarder ya es fire-and-forget.",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\gafa9\\OneDrive\\Escritorio\\WEBAPP STEAMDECK\\scripts\\agent-hook-forwarder.mjs\" --source claude --event start",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\gafa9\\OneDrive\\Escritorio\\WEBAPP STEAMDECK\\scripts\\agent-hook-forwarder.mjs\" --source claude --event stop",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "StopFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\gafa9\\OneDrive\\Escritorio\\WEBAPP STEAMDECK\\scripts\\agent-hook-forwarder.mjs\" --source claude --event failure",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\gafa9\\OneDrive\\Escritorio\\WEBAPP STEAMDECK\\scripts\\agent-hook-forwarder.mjs\" --source claude --event session_end",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

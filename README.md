@@ -1,10 +1,24 @@
 # STEAM DECK SEMÁFORO 🚦
 
-Pantalla ambiental tipo **semáforo** para dejar abierta en una Steam Deck al
-costado del escritorio. De un vistazo —incluso a ~10 metros— muestra el estado
-real del **deploy** de uno o varios repositorios de GitHub.
+Pantalla ambiental para dejar abierta en una Steam Deck al costado del
+escritorio. Desde un vistazo —incluso a ~10 metros— muestra **dos fuentes**:
 
-El color ocupa toda la pantalla:
+1. **Área principal (agentes):** el estado en vivo de **Claude Code** y **Codex**
+   controlado por sus **hooks locales** (idle / working / completed / error). Es
+   la fuente con prioridad visual. Ver **[SETUP-AGENT-HOOKS.md](SETUP-AGENT-HOOKS.md)**.
+2. **Indicador secundario (GitHub):** el estado real del **deploy** de tus repos,
+   compacto a la derecha (banda inferior en pantallas angostas).
+
+Área principal según qué agentes estén activos: **sin tareas** → gris "Sin
+tareas" con logos tenues · **un agente** → ocupa todo · **ambos** → split
+vertical (Codex izquierda, Claude derecha), estados independientes. Colores por
+agente: idle gris · working azul · completed verde (120 s) · error rojo.
+
+---
+
+## Indicador de GitHub (secundario)
+
+El color del indicador de deploy:
 
 | Color | Estado | Palabra | Significado |
 |-------|--------|---------|-------------|

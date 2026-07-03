@@ -234,6 +234,354 @@ body {
   }
 }
 
+/* ============ LAYOUT PRINCIPAL (agentes + GitHub) ============ */
+.app-root {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 1fr clamp(150px, 13vw, 260px);
+  overflow: hidden;
+  cursor: pointer;
+}
+.app-root.cursor-hidden {
+  cursor: none;
+}
+.stage-area {
+  grid-column: 1;
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+}
+.gh-slot {
+  grid-column: 2;
+  min-width: 0;
+  padding: clamp(0.4rem, 1vw, 0.9rem);
+  display: flex;
+  align-items: stretch;
+  background: rgba(0, 0, 0, 0.28);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+/* Pantallas angostas / verticales: GitHub pasa a banda inferior compacta. */
+@media (max-aspect-ratio: 1 / 1), (max-width: 640px) {
+  .app-root {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr auto;
+  }
+  .stage-area {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .gh-slot {
+    grid-column: 1;
+    grid-row: 2;
+    border-left: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+}
+
+/* ============ ÁREA DE AGENTES ============ */
+.agent-stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+}
+.stage-none,
+.stage-single {
+  place-items: center;
+  justify-content: center;
+  align-items: center;
+}
+.stage-both {
+  flex-direction: row;
+}
+
+.agent-panel {
+  flex: 1 1 0;
+  min-width: 0;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 3vmin;
+  transition: background 700ms ease;
+}
+.stage-both .agent-panel + .agent-panel {
+  border-left: 3px solid rgba(0, 0, 0, 0.35);
+}
+.agent-panel-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.5rem, 2vh, 1.4rem);
+  max-width: 92%;
+}
+.agent-panel-logo {
+  width: clamp(4rem, 14vmin, 12rem);
+  height: clamp(4rem, 14vmin, 12rem);
+  opacity: 0.96;
+}
+.agent-name {
+  font-weight: 800;
+  font-size: clamp(1rem, 3.4vmin, 2.4rem);
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  opacity: 0.92;
+}
+.agent-status {
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  font-size: clamp(2.4rem, 11vmin, 9rem);
+  text-shadow: 0 6px 40px rgba(0, 0, 0, 0.35);
+}
+.stage-both .agent-status {
+  font-size: clamp(2rem, 9vmin, 7rem);
+}
+.agent-project {
+  font-weight: 700;
+  font-size: clamp(0.9rem, 2.6vmin, 1.8rem);
+  color: var(--ink-dim);
+  word-break: break-word;
+}
+.agent-metrics {
+  display: flex;
+  gap: 1.2ch;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-size: clamp(0.8rem, 2vmin, 1.3rem);
+  font-weight: 600;
+  color: var(--ink-faint);
+}
+
+/* Colores de estado por agente */
+.agent-idle {
+  background: radial-gradient(circle at 50% 42%, #2a303c, #14171d 82%);
+}
+.agent-working {
+  background: radial-gradient(circle at 50% 40%, #2563eb, #1230a3 75%);
+  animation: pulse 2.6s ease-in-out infinite;
+}
+.agent-completed {
+  background: radial-gradient(circle at 50% 40%, #16a34a, #0d6b31 78%);
+}
+.agent-error {
+  background: radial-gradient(circle at 50% 40%, #ef4444, #a11212 78%);
+  animation: alert-flash 1.6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .agent-working,
+  .agent-error {
+    animation: none;
+  }
+}
+
+/* Pantalla "Sin tareas" */
+.stage-none {
+  flex-direction: column;
+  gap: clamp(1rem, 4vh, 3rem);
+  background: radial-gradient(circle at 50% 40%, #23272f, #101216 84%);
+}
+.idle-logos {
+  display: flex;
+  gap: clamp(1.5rem, 6vw, 5rem);
+  color: var(--ink);
+  opacity: 0.16;
+}
+.idle-logo {
+  width: clamp(3rem, 12vmin, 9rem);
+  height: clamp(3rem, 12vmin, 9rem);
+}
+.idle-title {
+  margin: 0;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  font-size: clamp(1.4rem, 6vmin, 4rem);
+  color: var(--ink-dim);
+  text-transform: uppercase;
+}
+
+/* Logos por CSS mask (heredan currentColor, reemplazables por archivo) */
+.agent-logo {
+  display: inline-block;
+  background-color: currentColor;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+.agent-logo--claude {
+  -webkit-mask-image: url(/claude-logo.svg);
+  mask-image: url(/claude-logo.svg);
+}
+.agent-logo--codex {
+  -webkit-mask-image: url(/codex-logo.svg);
+  mask-image: url(/codex-logo.svg);
+}
+
+/* ============ INDICADOR GITHUB (secundario) ============ */
+.gh-indicator {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: clamp(0.5rem, 1.2vw, 1rem);
+  border-radius: 14px;
+  background: rgba(20, 23, 29, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--ink);
+  overflow: hidden;
+}
+.gh-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5ch;
+  font-weight: 800;
+  font-size: clamp(0.8rem, 1.1vw, 1.05rem);
+}
+.gh-mark {
+  flex: none;
+  font-size: 1.3em;
+  opacity: 0.9;
+}
+.gh-repo {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.gh-cycle {
+  margin-left: auto;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: inherit;
+  border-radius: 8px;
+  padding: 0.1rem 0.45rem;
+  cursor: pointer;
+}
+.gh-state {
+  display: flex;
+  align-items: center;
+  gap: 0.5ch;
+  font-weight: 800;
+  font-size: clamp(0.85rem, 1.2vw, 1.15rem);
+  padding: 0.35rem 0.5rem;
+  border-radius: 10px;
+}
+.gh-state-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.gh-details {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: clamp(0.7rem, 0.95vw, 0.9rem);
+  color: var(--ink-dim);
+}
+.gh-row {
+  display: flex;
+  gap: 0.5ch;
+  justify-content: space-between;
+}
+.gh-row dt {
+  opacity: 0.6;
+}
+.gh-row dd {
+  margin: 0;
+  font-weight: 600;
+}
+.gh-details a {
+  color: #7cb0ff;
+}
+
+/* Estados del indicador — solo se anima el indicador, nunca el fondo principal */
+.gh-running .gh-state {
+  background: rgba(96, 90, 220, 0.28);
+  color: #cdd0ff;
+}
+.gh-success .gh-state {
+  background: rgba(34, 197, 94, 0.24);
+  color: #a7f3c4;
+}
+.gh-failed .gh-state {
+  background: rgba(239, 68, 68, 0.26);
+  color: #ffc4c4;
+}
+.gh-attention .gh-state {
+  background: rgba(245, 158, 11, 0.24);
+  color: #ffe0a3;
+}
+.gh-waiting .gh-state,
+.gh-unknown .gh-state {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--ink-dim);
+}
+.gh-spinner {
+  width: 0.95em;
+  height: 0.95em;
+  border-radius: 50%;
+  border: 0.18em solid rgba(255, 255, 255, 0.25);
+  border-top-color: #cdd0ff;
+  animation: spin 1s linear infinite;
+  flex: none;
+}
+.gh-check {
+  animation: check-pop 0.6s ease-out;
+}
+@keyframes check-pop {
+  0% {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gh-spinner {
+    animation-duration: 2.4s;
+  }
+  .gh-check {
+    animation: none;
+  }
+}
+
+/* Aviso discreto de desconexión */
+.conn-pill {
+  position: fixed;
+  top: 0.6rem;
+  left: 0.6rem;
+  z-index: 40;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ink-dim);
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+  pointer-events: none;
+}
+
+/* Puntos de estado de agente en el panel de config */
+.dot.agent-dot-idle {
+  background: #64748b;
+}
+.dot.agent-dot-working {
+  background: #3b82f6;
+}
+.dot.agent-dot-completed {
+  background: #22c55e;
+}
+.dot.agent-dot-error {
+  background: #ef4444;
+}
+
 /* ============ ACTIVACIÓN ============ */
 .activation-layer {
   position: fixed;

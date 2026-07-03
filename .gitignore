@@ -13,12 +13,17 @@ web/dev-dist/
 .env.*.local
 web/.env
 web/.env.local
+scripts/.env
 *.secret
 *secret*.txt
 webhook.secret
 serviceAccount*.json
 service-account*.json
 *-adminsdk-*.json
+
+# Config local del forwarder de agentes (URL + secreto compartido)
+.agent-hook/
+agent-hook.config.json
 
 # Firebase
 .firebase/

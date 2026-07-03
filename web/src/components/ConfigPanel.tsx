@@ -2,6 +2,8 @@ import { useState } from "react";
 import type { DisplayMeta, DisplayRecord, VisualState } from "../types";
 import type { Prefs } from "../prefs";
 import { relativeAge } from "../time";
+import type { AgentsState, AgentId } from "../agents/types";
+import { AGENT_DEF, AGENT_NAME, deriveAgentVisual } from "../agents/state";
 
 interface Props {
   prefs: Prefs;
@@ -11,6 +13,8 @@ interface Props {
   meta: DisplayMeta | null;
   connected: boolean;
   configured: boolean;
+  agents: AgentsState;
+  agentsConnected: boolean;
   now: number;
   onBack: () => void;
 }
@@ -31,12 +35,31 @@ export function ConfigPanel({
   meta,
   connected,
   configured,
+  agents,
+  agentsConnected,
   now,
   onBack,
 }: Props) {
   const [preview, setPreview] = useState<{ cls: string; label: string } | null>(null);
+  const [resetDone, setResetDone] = useState(false);
 
   const update = (patch: Partial<Prefs>) => setPrefs({ ...prefs, ...patch });
+
+  const holdOpts = {
+    greenHoldSec: prefs.agentGreenHoldSec,
+    errorHoldSec: prefs.agentErrorHoldSec,
+    orphanMin: prefs.agentOrphanMin,
+  };
+
+  /** Limpia el snapshot local en cache (útil si quedó un estado fantasma). */
+  const resetLocalAgents = () => {
+    try {
+      localStorage.removeItem("semaforo:agents:v1");
+      setResetDone(true);
+    } catch {
+      /* ignore */
+    }
+  };
 
   const setAlias = (repoId: string, value: string) => {
     const aliases = { ...prefs.aliases };
@@ -78,6 +101,77 @@ export function ConfigPanel({
             {meta?.lastWebhookAt ? relativeAge(meta.lastWebhookAt, now) : "—"}
           </strong>
         </p>
+      </section>
+
+      <section className="config-section">
+        <h3>Agentes (Claude Code / Codex)</h3>
+        <p>
+          Estado en vivo:{" "}
+          <strong className={agentsConnected ? "ok" : "bad"}>
+            {configured ? (agentsConnected ? "conectado" : "desconectado") : "sin configurar"}
+          </strong>
+        </p>
+        <ul className="repo-list">
+          {(["codex", "claude"] as AgentId[]).map((id) => {
+            const view = deriveAgentVisual(agents[id], now, holdOpts);
+            const rec = agents[id];
+            return (
+              <li key={id} className="repo-item">
+                <div className="repo-line">
+                  <span className={`dot agent-dot-${view.visual}`} />
+                  <strong>{AGENT_NAME[id]}</strong>
+                  <span className="muted">{AGENT_DEF[view.visual].label}</span>
+                  {view.activeCount > 0 && (
+                    <span className="muted">· {view.activeCount} activa(s)</span>
+                  )}
+                </div>
+                <div className="repo-controls">
+                  <span className="muted">
+                    último ok:{" "}
+                    {rec?.lastCompletedAt ? relativeAge(rec.lastCompletedAt, now) : "—"}
+                    {" · "}último error:{" "}
+                    {rec?.lastError ? relativeAge(rec.lastError, now) : "—"}
+                    {rec?.lastCwd ? ` · ${rec.lastCwd}` : ""}
+                  </span>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+
+        <div className="inline">
+          <label className="inline" style={{ margin: 0 }}>
+            Verde (s):
+            <input
+              type="number"
+              min={5}
+              max={600}
+              value={prefs.agentGreenHoldSec}
+              onChange={(e) =>
+                update({ agentGreenHoldSec: Math.max(5, Number(e.target.value) || 120) })
+              }
+            />
+          </label>
+          <label className="inline" style={{ margin: 0 }}>
+            Huérfana (min):
+            <input
+              type="number"
+              min={1}
+              max={120}
+              value={prefs.agentOrphanMin}
+              onChange={(e) =>
+                update({ agentOrphanMin: Math.max(1, Number(e.target.value) || 10) })
+              }
+            />
+          </label>
+        </div>
+
+        <button type="button" className="ctl" onClick={resetLocalAgents}>
+          ♻ Limpiar estado local
+        </button>
+        {resetDone && (
+          <span className="muted"> — cache borrada; recargá para re-sincronizar.</span>
+        )}
       </section>
 
       <section className="config-section">
