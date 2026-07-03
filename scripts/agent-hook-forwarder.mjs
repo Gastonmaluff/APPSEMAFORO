@@ -49,10 +49,11 @@ function logLine(msg) {
 
 /** Parsea argumentos --key value y flags --test. */
 function parseArgs(argv) {
-  const out = { test: false };
+  const out = { test: false, emitContinue: false };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "--test") out.test = true;
+    else if (a === "--emit-continue") out.emitContinue = true;
     else if (a === "--source") out.source = argv[++i];
     else if (a === "--event") out.event = argv[++i];
   }
@@ -125,7 +126,11 @@ async function postOnce(url, secret, payload) {
 }
 
 async function main() {
-  const { source, event, test } = parseArgs(process.argv.slice(2));
+  const { source, event, test, emitContinue } = parseArgs(process.argv.slice(2));
+
+  // Respuesta neutral para Codex: se emite SIEMPRE y primero, de modo que aunque
+  // falle la config/red/forwarder, Codex reciba un JSON válido y no se bloquee.
+  if (emitContinue && !test) process.stdout.write('{"continue":true}\n');
 
   if (!VALID_SOURCES.includes(source) || !VALID_EVENTS.includes(event)) {
     logLine(`args inválidos: source=${source} event=${event}`);

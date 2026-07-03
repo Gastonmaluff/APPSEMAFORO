@@ -158,11 +158,16 @@ actualizá la ruta absoluta del forwarder en los comandos.
 
 ## 10. Instalación de hooks de Codex
 
-Codex usa el mismo formato de hooks que Claude Code pero **trust-gated**. Plantilla en
-`scripts/hooks/codex-plugin/hooks/hooks.json` (`UserPromptSubmit→start`, `Stop→stop`,
-`SessionEnd→session_end`). El campo `notify` de Codex **no se toca** (lo usa
-computer-use). Como respaldo, si Codex no emite `Stop` por turno, las tareas huérfanas
-expiran solas (ver §16).
+**Método que funciona (Codex CLI 0.142.x): config global `%USERPROFILE%\.codex\hooks.json`.**
+Plantilla versionada en `scripts/hooks/codex-hooks.json` (`UserPromptSubmit→start`,
+`Stop→stop`, con `--emit-continue` que devuelve `{"continue":true}` para no bloquear el
+turno). Copiala a `%USERPROFILE%\.codex\hooks.json` y ajustá la ruta absoluta del
+forwarder. El campo `notify` de Codex **no se toca** (lo usa computer-use). Como respaldo,
+si Codex no emitiera `Stop`, las tareas huérfanas expiran solas (ver §16).
+
+> El intento previo con **plugin local + marketplace** (`scripts/hooks/codex-plugin/`)
+> quedó **descartado**: Codex 0.142.x no carga un plugin agregado a mano fuera de su
+> flujo de instalación (verificado con `/hooks`). Se usa `hooks.json` de usuario.
 
 ## 11. Cómo revisar hooks con `/hooks`
 

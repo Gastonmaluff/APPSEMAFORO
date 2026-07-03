@@ -1,0 +1,29 @@
+{
+  "_comment": "Config GLOBAL de hooks de Codex. Copiá este contenido a %USERPROFILE%\\.codex\\hooks.json (Codex 0.142.x lo lee como hooks de usuario). UserPromptSubmit->start (azul), Stop->stop (verde). --emit-continue hace que el hook devuelva {\"continue\":true} para no bloquear el turno. Ajustá la ruta absoluta del forwarder si moviste el repo. Este método reemplaza al intento de plugin local (scripts/hooks/codex-plugin/, que Codex no cargaba).",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\gafa9\\OneDrive\\Escritorio\\WEBAPP STEAMDECK\\scripts\\agent-hook-forwarder.mjs\" --source codex --event start --emit-continue",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\gafa9\\OneDrive\\Escritorio\\WEBAPP STEAMDECK\\scripts\\agent-hook-forwarder.mjs\" --source codex --event stop --emit-continue",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}
