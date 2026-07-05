@@ -32,15 +32,34 @@ export default function App() {
   const [rotationIndex, setRotationIndex] = useState(0);
   const [fullscreen, setFullscreen] = useState(false);
   const [cursorHidden, setCursorHidden] = useState(false);
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [panelPinned, setPanelPinned] = useState(false);
 
   const controlsTimer = useRef<number | null>(null);
   const cursorTimer = useRef<number | null>(null);
+  const panelCloseTimer = useRef<number | null>(null);
   const prevGhStatus = useRef<Record<string, string>>({});
 
   const setPrefs = useCallback((next: Prefs) => {
     setPrefsState(next);
     savePrefs(next);
   }, []);
+
+  // --- Drawer del panel lateral (off-canvas; no toca datos ni listeners) ---
+  const openPanel = useCallback(() => {
+    if (panelCloseTimer.current) {
+      window.clearTimeout(panelCloseTimer.current);
+      panelCloseTimer.current = null;
+    }
+    setPanelOpen(true);
+  }, []);
+  const scheduleClosePanel = useCallback(() => {
+    if (panelCloseTimer.current) window.clearTimeout(panelCloseTimer.current);
+    // Retardo para no cerrarlo si el cursor se mueve dentro del panel.
+    panelCloseTimer.current = window.setTimeout(() => setPanelOpen(false), 650);
+  }, []);
+  const togglePanel = useCallback(() => setPanelOpen((o) => !o), []);
+  const togglePin = useCallback(() => setPanelPinned((p) => !p), []);
 
   // Reloj de 1s para cronómetros, holds y hora.
   useEffect(() => {
@@ -186,7 +205,42 @@ export default function App() {
         <AgentStage agents={agentsData.agents} now={now} holdOpts={holdOpts} />
       </main>
 
-      <div className="gh-slot" onClick={(e) => e.stopPropagation()}>
+      {/* Zona/pestaña que revela el drawer (hover, foco, clic o toque). */}
+      <button
+        type="button"
+        className="panel-trigger"
+        aria-label={panelOpen ? "Ocultar panel de estado" : "Mostrar panel de estado"}
+        aria-expanded={panelOpen || panelPinned}
+        onMouseEnter={openPanel}
+        onFocus={openPanel}
+        onClick={(e) => {
+          e.stopPropagation();
+          togglePanel();
+        }}
+      />
+
+      {/* Panel lateral off-canvas: SIEMPRE montado (conserva datos/listeners). */}
+      <div
+        className={`panel-drawer ${panelOpen || panelPinned ? "open" : ""}`}
+        onMouseEnter={openPanel}
+        onMouseLeave={scheduleClosePanel}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          type="button"
+          className={`panel-pin ${panelPinned ? "pinned" : ""}`}
+          onClick={togglePin}
+          aria-pressed={panelPinned}
+          aria-label={panelPinned ? "Desfijar panel" : "Fijar panel"}
+          title={panelPinned ? "Desfijar" : "Fijar"}
+        >
+          <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+            <path
+              fill="currentColor"
+              d="M14 3.5 20.5 10l-1.4 1.4-1-.3-3.3 3.3.2 4.2-1.5 1.5-3-3-3.6 3.6-1-.4 3.6-3.6-3-3 1.5-1.5 4.2.2 3.3-3.3-.3-1L14 3.5Z"
+            />
+          </svg>
+        </button>
         <GithubIndicator
           record={ghRecord}
           connected={gh.connected}
