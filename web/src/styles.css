@@ -234,14 +234,15 @@ body {
   }
 }
 
-/* ============ LAYOUT PRINCIPAL (agentes + GitHub) ============ */
+/* ============ LAYOUT PRINCIPAL (agentes + panel) ============ */
 .app-root {
   position: fixed;
   inset: 0;
   display: grid;
-  grid-template-columns: 1fr clamp(150px, 13vw, 260px);
+  grid-template-columns: 1fr clamp(148px, 13vw, 250px);
   overflow: hidden;
   cursor: pointer;
+  background: #05070c;
 }
 .app-root.cursor-hidden {
   cursor: none;
@@ -255,13 +256,12 @@ body {
 .gh-slot {
   grid-column: 2;
   min-width: 0;
-  padding: clamp(0.4rem, 1vw, 0.9rem);
   display: flex;
-  align-items: stretch;
-  background: rgba(0, 0, 0, 0.28);
-  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  align-items: center;
+  padding: clamp(0.5rem, 1.1vw, 1rem);
+  background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.25));
 }
-/* Pantallas angostas / verticales: GitHub pasa a banda inferior compacta. */
+/* Pantallas angostas / verticales: el panel pasa a banda inferior compacta. */
 @media (max-aspect-ratio: 1 / 1), (max-width: 640px) {
   .app-root {
     grid-template-columns: 1fr;
@@ -274,8 +274,8 @@ body {
   .gh-slot {
     grid-column: 1;
     grid-row: 2;
-    border-left: none;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 0.5rem 0.7rem;
+    background: rgba(0, 0, 0, 0.3);
   }
 }
 
@@ -295,239 +295,255 @@ body {
   flex-direction: row;
 }
 
+/* Panel de agente: fondo radial cinematográfico (centro vivo -> bordes negros). */
 .agent-panel {
+  --glow: #2b303b;
+  --mid: #12151b;
+  position: relative;
+  isolation: isolate;
   flex: 1 1 0;
   min-width: 0;
   display: grid;
   place-items: center;
   text-align: center;
-  padding: 3vmin;
-  transition: background 700ms ease;
+  padding: 4vmin;
+  background: radial-gradient(125% 95% at 50% 38%, var(--glow) 0%, var(--mid) 34%, #04060b 80%);
+  transition: background 900ms ease;
+}
+.agent-panel--split {
+  padding: 3vmin 1.6vmin;
+}
+/* Brillo central que "respira" muy sutilmente mientras trabaja. */
+.agent-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(58% 48% at 50% 37%, var(--glow), transparent 72%);
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+.agent-panel.agent-working::before {
+  animation: breathe 6s ease-in-out infinite;
+}
+.agent-panel.agent-error::before {
+  animation: breathe 3.4s ease-in-out infinite;
+}
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.14;
+  }
+  50% {
+    opacity: 0.4;
+  }
 }
 .stage-both .agent-panel + .agent-panel {
-  border-left: 3px solid rgba(0, 0, 0, 0.35);
+  box-shadow: -1px 0 0 rgba(0, 0, 0, 0.6);
 }
 .agent-panel-body {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(0.5rem, 2vh, 1.4rem);
-  max-width: 92%;
+  gap: clamp(0.55rem, 2vh, 1.4rem);
+  max-width: 97%;
 }
 .agent-panel-logo {
-  width: clamp(4rem, 14vmin, 12rem);
-  height: clamp(4rem, 14vmin, 12rem);
-  opacity: 0.96;
+  width: clamp(4rem, 13.5vmin, 9.5rem);
+  height: clamp(4rem, 13.5vmin, 9.5rem);
+  margin-bottom: clamp(0.3rem, 1.4vh, 1rem);
+}
+.agent-panel--split .agent-panel-logo {
+  width: clamp(2.8rem, 9.5vmin, 6.5rem);
+  height: clamp(2.8rem, 9.5vmin, 6.5rem);
+}
+.panel-codex .agent-panel-logo {
+  filter: drop-shadow(0 0 30px rgba(80, 130, 255, 0.55));
+}
+.panel-claude .agent-panel-logo {
+  filter: drop-shadow(0 0 30px rgba(240, 130, 55, 0.5));
 }
 .agent-name {
-  font-weight: 800;
-  font-size: clamp(1rem, 3.4vmin, 2.4rem);
-  letter-spacing: 0.02em;
-  color: var(--ink);
-  opacity: 0.92;
+  font-weight: 600;
+  font-size: clamp(0.8rem, 2.3vmin, 1.4rem);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72);
 }
 .agent-status {
-  font-weight: 900;
-  line-height: 0.95;
-  letter-spacing: -0.01em;
-  font-size: clamp(2.4rem, 11vmin, 9rem);
-  text-shadow: 0 6px 40px rgba(0, 0, 0, 0.35);
+  margin: 0;
+  max-width: 100%;
+  white-space: nowrap;
+  font-weight: 800;
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  font-size: clamp(2.6rem, 12vmin, 9rem);
+  color: #ffffff;
+  text-shadow: 0 2px 70px rgba(0, 0, 0, 0.45);
 }
 .stage-both .agent-status {
-  font-size: clamp(2rem, 9vmin, 7rem);
+  font-size: clamp(1.4rem, 6vmin, 4.8rem);
 }
 .agent-project {
-  font-weight: 700;
-  font-size: clamp(0.9rem, 2.6vmin, 1.8rem);
-  color: var(--ink-dim);
+  font-weight: 600;
+  font-size: clamp(0.82rem, 2.3vmin, 1.55rem);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
   word-break: break-word;
 }
-.agent-metrics {
-  display: flex;
-  gap: 1.2ch;
-  flex-wrap: wrap;
-  justify-content: center;
-  font-size: clamp(0.8rem, 2vmin, 1.3rem);
-  font-weight: 600;
-  color: var(--ink-faint);
+.agent-meta {
+  font-weight: 500;
+  font-size: clamp(0.72rem, 1.7vmin, 1.1rem);
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.42);
 }
 
-/* Colores de estado por agente */
-.agent-idle {
-  background: radial-gradient(circle at 50% 42%, #2a303c, #14171d 82%);
+/* Paletas por estado (centro vivo + medio profundo; los bordes van a negro). */
+.panel-codex.agent-working {
+  --glow: #3b7bff;
+  --mid: #0e2a60;
 }
-.agent-working {
-  background: radial-gradient(circle at 50% 40%, #2563eb, #1230a3 75%);
-  animation: pulse 2.6s ease-in-out infinite;
+.panel-claude.agent-working {
+  --glow: #f07d2b;
+  --mid: #4c1f06;
 }
 .agent-completed {
-  background: radial-gradient(circle at 50% 40%, #16a34a, #0d6b31 78%);
+  --glow: #24c56a;
+  --mid: #0b4d29;
 }
 .agent-error {
-  background: radial-gradient(circle at 50% 40%, #ef4444, #a11212 78%);
-  animation: alert-flash 1.6s ease-in-out infinite;
+  --glow: #f0473d;
+  --mid: #4d1210;
+}
+.agent-idle {
+  --glow: #2b303b;
+  --mid: #12151b;
 }
 @media (prefers-reduced-motion: reduce) {
-  .agent-working,
-  .agent-error {
-    animation: none;
+  .agent-panel::before {
+    animation: none !important;
+    opacity: 0.22;
   }
 }
 
 /* Pantalla "Sin tareas" */
 .stage-none {
   flex-direction: column;
-  gap: clamp(1rem, 4vh, 3rem);
-  background: radial-gradient(circle at 50% 40%, #23272f, #101216 84%);
+  gap: clamp(1rem, 4vh, 2.4rem);
+  background: radial-gradient(125% 95% at 50% 40%, #1a1d24, #06080c 82%);
 }
 .idle-logos {
   display: flex;
-  gap: clamp(1.5rem, 6vw, 5rem);
-  color: var(--ink);
-  opacity: 0.16;
+  gap: clamp(1.6rem, 6vw, 4.5rem);
+  opacity: 0.5;
 }
 .idle-logo {
-  width: clamp(3rem, 12vmin, 9rem);
-  height: clamp(3rem, 12vmin, 9rem);
+  width: clamp(2.6rem, 9vmin, 6.5rem);
+  height: clamp(2.6rem, 9vmin, 6.5rem);
+  filter: grayscale(0.55) brightness(0.9);
 }
 .idle-title {
   margin: 0;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  font-size: clamp(1.4rem, 6vmin, 4rem);
-  color: var(--ink-dim);
+  font-weight: 600;
+  letter-spacing: 0.34em;
+  font-size: clamp(1.1rem, 4.5vmin, 2.6rem);
+  color: rgba(255, 255, 255, 0.4);
   text-transform: uppercase;
 }
 
-/* Logos por CSS mask (heredan currentColor, reemplazables por archivo) */
+/* Logos reales a color (SVG en /public); glow por CSS, reemplazables por archivo.
+   No fija tamaño: lo controla la clase de contexto (.agent-panel-logo / .idle-logo). */
 .agent-logo {
-  display: inline-block;
-  background-color: currentColor;
-  -webkit-mask-position: center;
-  mask-position: center;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-size: contain;
-  mask-size: contain;
-}
-.agent-logo--claude {
-  -webkit-mask-image: url(/claude-logo.svg);
-  mask-image: url(/claude-logo.svg);
-}
-.agent-logo--codex {
-  -webkit-mask-image: url(/codex-logo.svg);
-  mask-image: url(/codex-logo.svg);
+  display: block;
+  max-width: 100%;
+  object-fit: contain;
+  -webkit-user-drag: none;
 }
 
-/* ============ INDICADOR GITHUB (secundario) ============ */
-.gh-indicator {
+/* ============ PANEL LATERAL (secundario, premium) ============ */
+.side-panel {
+  position: relative;
   flex: 1;
+  align-self: stretch;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  padding: clamp(0.5rem, 1.2vw, 1rem);
-  border-radius: 14px;
-  background: rgba(20, 23, 29, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--ink);
-  overflow: hidden;
+  justify-content: center;
+  gap: clamp(1rem, 3.2vh, 2.1rem);
+  padding: clamp(1rem, 2vh, 1.7rem) clamp(0.8rem, 1.3vw, 1.3rem);
+  border-radius: 20px;
+  background: rgba(9, 11, 15, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #fff;
+  text-align: right;
 }
-.gh-head {
-  display: flex;
-  align-items: center;
-  gap: 0.5ch;
-  font-weight: 800;
-  font-size: clamp(0.8rem, 1.1vw, 1.05rem);
-}
-.gh-mark {
-  flex: none;
-  font-size: 1.3em;
-  opacity: 0.9;
-}
-.gh-repo {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.gh-cycle {
-  margin-left: auto;
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
-  color: inherit;
-  border-radius: 8px;
-  padding: 0.1rem 0.45rem;
-  cursor: pointer;
-}
-.gh-state {
-  display: flex;
-  align-items: center;
-  gap: 0.5ch;
-  font-weight: 800;
-  font-size: clamp(0.85rem, 1.2vw, 1.15rem);
-  padding: 0.35rem 0.5rem;
-  border-radius: 10px;
-}
-.gh-state-text {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.gh-details {
-  margin: 0;
+.sp-block {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
-  font-size: clamp(0.7rem, 0.95vw, 0.9rem);
-  color: var(--ink-dim);
+  align-items: flex-end;
+  gap: 0.28rem;
 }
-.gh-row {
+.sp-label {
+  font-size: clamp(0.6rem, 0.95vw, 0.78rem);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.36);
+}
+.sp-value {
   display: flex;
-  gap: 0.5ch;
-  justify-content: space-between;
-}
-.gh-row dt {
-  opacity: 0.6;
-}
-.gh-row dd {
-  margin: 0;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.45ch;
+  font-size: clamp(0.9rem, 1.5vw, 1.2rem);
   font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
 }
-.gh-details a {
-  color: #7cb0ff;
+.sp-metric {
+  font-size: clamp(1.1rem, 2vw, 1.65rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
-
-/* Estados del indicador — solo se anima el indicador, nunca el fondo principal */
-.gh-running .gh-state {
-  background: rgba(96, 90, 220, 0.28);
-  color: #cdd0ff;
+.sp-of {
+  color: rgba(255, 255, 255, 0.32);
+  font-weight: 500;
+  font-size: 0.66em;
 }
-.gh-success .gh-state {
-  background: rgba(34, 197, 94, 0.24);
-  color: #a7f3c4;
+.sp-caption {
+  font-size: clamp(0.58rem, 0.85vw, 0.7rem);
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.28);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.gh-failed .gh-state {
-  background: rgba(239, 68, 68, 0.26);
-  color: #ffc4c4;
-}
-.gh-attention .gh-state {
-  background: rgba(245, 158, 11, 0.24);
-  color: #ffe0a3;
-}
-.gh-waiting .gh-state,
-.gh-unknown .gh-state {
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--ink-dim);
-}
-.gh-spinner {
-  width: 0.95em;
-  height: 0.95em;
+.sp-dot {
+  width: 0.5em;
+  height: 0.5em;
   border-radius: 50%;
-  border: 0.18em solid rgba(255, 255, 255, 0.25);
-  border-top-color: #cdd0ff;
+  flex: none;
+  background: #5b6472;
+  box-shadow: 0 0 9px rgba(91, 100, 114, 0.9);
+}
+.sp-spinner {
+  width: 0.78em;
+  height: 0.78em;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  border-top-color: #c9cbff;
   animation: spin 1s linear infinite;
   flex: none;
 }
-.gh-check {
+.sp-check {
+  color: #34d17e;
+  font-weight: 700;
   animation: check-pop 0.6s ease-out;
 }
 @keyframes check-pop {
@@ -543,11 +559,63 @@ body {
     transform: scale(1);
   }
 }
+/* Color del punto/estado según el deploy */
+.sp-running .sp-dot {
+  background: #8b8bff;
+  box-shadow: 0 0 10px #8b8bff;
+}
+.sp-running .sp-estado-text {
+  color: #c9cbff;
+}
+.sp-success .sp-dot {
+  background: #34d17e;
+  box-shadow: 0 0 10px #34d17e;
+}
+.sp-failed .sp-dot {
+  background: #f0574d;
+  box-shadow: 0 0 10px #f0574d;
+}
+.sp-attention .sp-dot {
+  background: #f5b445;
+  box-shadow: 0 0 10px #f5b445;
+}
+.sp-more {
+  position: absolute;
+  bottom: clamp(0.5rem, 1.2vh, 1rem);
+  right: clamp(0.7rem, 1.2vw, 1.2rem);
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 1.05rem;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.2rem 0.3rem;
+}
+.sp-more:hover {
+  color: rgba(255, 255, 255, 0.7);
+}
+@media (max-aspect-ratio: 1 / 1), (max-width: 640px) {
+  .side-panel {
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    text-align: center;
+    gap: 0.8rem;
+    padding: 0.7rem 1rem;
+  }
+  .sp-block {
+    align-items: center;
+  }
+  .sp-more {
+    position: static;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
-  .gh-spinner {
+  .sp-spinner {
     animation-duration: 2.4s;
   }
-  .gh-check {
+  .sp-check {
     animation: none;
   }
 }

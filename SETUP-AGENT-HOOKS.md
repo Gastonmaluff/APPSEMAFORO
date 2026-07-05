@@ -55,7 +55,7 @@ estados independientes.
 - `src/agents/{types,state,state.test}.ts` *(nuevo)*.
 - `src/hooks/useAgentsData.ts` *(nuevo)*.
 - `src/components/{AgentStage,AgentPanel,GithubIndicator,AgentLogo}.tsx` *(nuevo)*.
-- `public/{claude,codex}-logo.svg` *(nuevo, placeholders)*.
+- `public/{claude,codex}-logo.png` *(logos oficiales, fondo transparente; fuente sin procesar en `web/logos-src/`)*.
 - `src/App.tsx`, `src/firebase.ts`, `src/prefs.ts`, `src/styles.css`,
   `src/components/ConfigPanel.tsx` *(mod)*.
 

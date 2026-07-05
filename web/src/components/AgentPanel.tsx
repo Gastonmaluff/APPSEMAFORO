@@ -12,8 +12,9 @@ interface Props {
 }
 
 /**
- * Panel de un agente: color de fondo grande según el estado (idle/working/
- * completed/error), logo, nombre, proyecto y cantidad de tareas activas.
+ * Panel de un agente: fondo radial premium según el estado (idle/working/
+ * completed/error), logo real, nombre, estado grande, proyecto y tareas/tiempo.
+ * Solo presentación — el estado ya viene resuelto en `view`.
  */
 export function AgentPanel({ agent, view, now, variant }: Props) {
   const def = AGENT_DEF[view.visual];
@@ -21,25 +22,20 @@ export function AgentPanel({ agent, view, now, variant }: Props) {
     view.visual === "working" && view.since
       ? formatDuration((now - view.since) / 1000)
       : null;
+  const taskLabel =
+    view.activeCount > 0
+      ? `${view.activeCount} ${view.activeCount === 1 ? "tarea" : "tareas"}`
+      : null;
+  const meta = [taskLabel, elapsed].filter(Boolean).join("  ·  ");
 
   return (
-    <section className={`agent-panel ${def.className} agent-panel--${variant}`}>
+    <section className={`agent-panel panel-${agent} ${def.className} agent-panel--${variant}`}>
       <div className="agent-panel-body">
         <AgentLogo agent={agent} className="agent-panel-logo" />
         <div className="agent-name">{AGENT_NAME[agent]}</div>
-        <div className="agent-status">{def.label}</div>
-
+        <h1 className="agent-status">{def.label}</h1>
         {view.project && <div className="agent-project">{view.project}</div>}
-
-        <div className="agent-metrics">
-          {view.activeCount > 1 && (
-            <span className="agent-count">{view.activeCount} tareas</span>
-          )}
-          {view.activeCount === 1 && view.visual === "working" && (
-            <span className="agent-count">1 tarea</span>
-          )}
-          {elapsed && <span className="agent-elapsed">⏱ {elapsed}</span>}
-        </div>
+        {meta && <div className="agent-meta">{meta}</div>}
       </div>
     </section>
   );

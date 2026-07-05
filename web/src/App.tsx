@@ -3,6 +3,7 @@ import { AgentStage } from "./components/AgentStage";
 import { GithubIndicator } from "./components/GithubIndicator";
 import { Controls } from "./components/Controls";
 import { ConfigPanel } from "./components/ConfigPanel";
+import { deriveAgentVisual } from "./agents/state";
 import { useAgentsData } from "./hooks/useAgentsData";
 import { useDisplayData } from "./hooks/useDisplayData";
 import { useWakeLock } from "./hooks/useWakeLock";
@@ -91,6 +92,14 @@ export default function App() {
       orphanMin: prefs.agentOrphanMin,
     }),
     [prefs.agentGreenHoldSec, prefs.agentErrorHoldSec, prefs.agentOrphanMin],
+  );
+
+  // Contextos activos = tareas vivas de ambos agentes (para el panel lateral).
+  const activeContexts = useMemo(
+    () =>
+      deriveAgentVisual(agentsData.agents.claude, now, holdOpts).activeCount +
+      deriveAgentVisual(agentsData.agents.codex, now, holdOpts).activeCount,
+    [agentsData.agents, now, holdOpts],
   );
 
   // Mostrar controles unos segundos al tocar la pantalla.
@@ -183,8 +192,9 @@ export default function App() {
           connected={gh.connected}
           now={now}
           greenHoldMinutes={prefs.greenHoldMinutes}
-          repoCount={ordered.length}
-          onCycle={() => setRotationIndex((i) => i + 1)}
+          activeContexts={activeContexts}
+          maxContexts={5}
+          onOpenConfig={() => setView("config")}
         />
       </div>
 
