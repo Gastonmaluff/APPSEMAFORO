@@ -34,7 +34,7 @@ export const DEFAULT_PREFS: Prefs = {
   greenHoldMinutes: 3,
   agentGreenHoldSec: 120,
   agentErrorHoldSec: 300,
-  agentOrphanMin: 10,
+  agentOrphanMin: 45,
 };
 
 export function loadPrefs(): Prefs {

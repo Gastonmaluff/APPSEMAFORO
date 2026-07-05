@@ -25,17 +25,20 @@
  *       { "url": "https://...cloudfunctions.net/agentHook", "secret": "..." }
  */
 
-import { readFileSync, appendFileSync, mkdirSync } from "node:fs";
+import { readFileSync, appendFileSync, mkdirSync, statSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
 const VALID_SOURCES = ["claude", "codex"];
 const VALID_EVENTS = ["start", "stop", "failure", "session_end", "heartbeat"];
 const TIMEOUT_MS = 1500;
+/** No enviar más de un heartbeat por sesión cada X ms (evita spam en PostToolUse). */
+const HEARTBEAT_THROTTLE_MS = 90_000;
 
 const CONFIG_DIR = join(homedir(), ".agent-hook");
 const CONFIG_FILE = join(CONFIG_DIR, "config.json");
 const LOG_FILE = join(CONFIG_DIR, "forwarder.log");
+const HB_DIR = join(CONFIG_DIR, "hb");
 
 /** Log local mínimo; nunca lanza. */
 function logLine(msg) {
@@ -44,6 +47,29 @@ function logLine(msg) {
     appendFileSync(LOG_FILE, `${new Date().toISOString()} ${msg}\n`);
   } catch {
     /* sin log disponible: se ignora */
+  }
+}
+
+/**
+ * Throttle de heartbeats por sesión: devuelve true si ya se envió uno hace menos
+ * de HEARTBEAT_THROTTLE_MS (hay que saltearlo). Usa un archivo marcador por sesión.
+ * Ante cualquier error, no throttlea (mejor enviar de más que perder actividad).
+ */
+function heartbeatThrottled(source, sessionId) {
+  try {
+    const key = `${source}-${String(sessionId).replace(/[^a-zA-Z0-9_-]/g, "_")}`.slice(0, 120);
+    const marker = join(HB_DIR, `${key}.ts`);
+    try {
+      const age = Date.now() - statSync(marker).mtimeMs;
+      if (age < HEARTBEAT_THROTTLE_MS) return true;
+    } catch {
+      /* no existe el marcador: primer heartbeat */
+    }
+    mkdirSync(HB_DIR, { recursive: true });
+    writeFileSync(marker, "");
+    return false;
+  } catch {
+    return false;
   }
 }
 
@@ -151,6 +177,11 @@ async function main() {
 
   if (test) {
     process.stdout.write(JSON.stringify(payload, null, 2) + "\n");
+    return;
+  }
+
+  // Heartbeats muy seguidos (PostToolUse) se saltean para no spamear la función.
+  if (event === "heartbeat" && heartbeatThrottled(source, payload.sessionId)) {
     return;
   }
 

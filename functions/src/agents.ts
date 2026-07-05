@@ -155,6 +155,22 @@ function statusFromTasks(record: AgentRecord, fallback: AgentStatus): AgentStatu
 }
 
 /**
+ * Milisegundos tras los cuales una tarea sin actividad se poda del servidor.
+ * Solo evita que se acumulen tareas de sesiones que murieron sin enviar `Stop`;
+ * las tareas activas se refrescan con heartbeats mucho antes de este umbral.
+ */
+export const STALE_TASK_MS = 60 * 60 * 1000;
+
+/** Elimina (in place) tareas cuyo `lastActivityAt` supera el umbral de stale. */
+function pruneStaleTasks(rec: AgentRecord, nowMs: number): void {
+  for (const [k, t] of Object.entries(rec.tasks)) {
+    if (!Number.isFinite(t.lastActivityAt) || nowMs - t.lastActivityAt > STALE_TASK_MS) {
+      delete rec.tasks[k];
+    }
+  }
+}
+
+/**
  * Reductor puro: aplica un evento normalizado al registro actual del agente y
  * devuelve el nuevo registro. Un evento de un agente NUNCA afecta al otro.
  */
@@ -166,6 +182,9 @@ export function applyEvent(
   const rec: AgentRecord = current
     ? { ...current, tasks: { ...current.tasks } }
     : emptyAgentRecord(nowMs);
+
+  // Poda defensiva de tareas huérfanas (sesiones que murieron sin `Stop`).
+  pruneStaleTasks(rec, nowMs);
 
   const key = buildTaskKey(ev);
   const cwd = ev.cwd;

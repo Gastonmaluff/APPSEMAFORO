@@ -12,6 +12,17 @@
         ]
       }
     ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:\\Users\\gafa9\\OneDrive\\Escritorio\\WEBAPP STEAMDECK\\scripts\\agent-hook-forwarder.mjs\" --source claude --event heartbeat",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "hooks": [

@@ -10,8 +10,13 @@ import type {
 export const AGENT_GREEN_HOLD_SEC = 120;
 /** Segundos que el rojo ("ERROR") se mantiene antes de volver a idle. */
 export const AGENT_ERROR_HOLD_SEC = 300;
-/** Minutos sin actividad tras los cuales una tarea se considera huérfana y se ignora. */
-export const AGENT_ORPHAN_MIN = 10;
+/**
+ * Minutos sin actividad tras los cuales una tarea se considera huérfana y se ignora.
+ * Actúa solo como red de seguridad ante un agente que crashea sin enviar `Stop`.
+ * Las tareas activas se mantienen vivas con heartbeats (PostToolUse), así que este
+ * valor puede ser generoso sin apagar tareas largas reales.
+ */
+export const AGENT_ORPHAN_MIN = 45;
 
 export interface HoldOpts {
   greenHoldSec?: number;

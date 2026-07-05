@@ -149,6 +149,32 @@ describe("applyEvent — múltiples tareas del mismo agente", () => {
   });
 });
 
+describe("poda de tareas huérfanas (server-side)", () => {
+  it("una tarea vieja (sin Stop) se poda al llegar un evento nuevo", () => {
+    // Registro con una tarea vieja (>60 min) que nunca cerró.
+    const stale: AgentRecord = {
+      status: "working",
+      activeCount: 1,
+      tasks: { vieja: { startedAt: T0 - 90 * 60000, lastActivityAt: T0 - 90 * 60000, sessionId: "vieja", cwd: "x" } },
+      lastCompletedAt: null,
+      lastError: null,
+      lastCwd: "x",
+      updatedAt: T0 - 90 * 60000,
+    };
+    // Llega un start de OTRA sesión "ahora".
+    const r = applyEvent(stale, ev({ event: "start", sessionId: "nueva" }), T0);
+    expect(Object.keys(r.tasks)).toEqual(["nueva"]); // la vieja fue podada
+    expect(r.activeCount).toBe(1);
+  });
+
+  it("un heartbeat reciente mantiene la tarea viva (no se poda)", () => {
+    const r1 = applyEvent(null, ev({ event: "start", sessionId: "s" }), T0);
+    const r2 = applyEvent(r1, ev({ event: "heartbeat", sessionId: "s" }), T0 + 30 * 60000);
+    expect(r2.activeCount).toBe(1);
+    expect(r2.status).toBe("working");
+  });
+});
+
 describe("independencia entre agentes", () => {
   it("el reductor opera sobre un registro por agente (no se cruzan)", () => {
     // Claude trabaja...

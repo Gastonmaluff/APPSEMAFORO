@@ -213,7 +213,10 @@ node scripts/simulate-agent-events.mjs duplicate    # idempotencia (duplicate:tr
 - `%USERPROFILE%\.agent-hook\forwarder.log` — errores del forwarder (red/config).
 - Panel ⚙ de la app → sección **Agentes**: conexión, estado por agente, último ok/error,
   botón **Limpiar estado local** (borra el cache local, no el servidor).
-- Tareas fantasma: expiran solas tras `agentOrphanMin` (10 min por defecto, ajustable en ⚙).
+- Tareas fantasma: expiran solas tras `agentOrphanMin` (**45 min** por defecto, ajustable en ⚙).
+- **Tareas largas**: los hooks `PostToolUse` envían un `heartbeat` (throttle ~90 s por sesión)
+  que refresca `lastActivityAt`, así una tarea activa se mantiene en azul sin importar cuánto
+  dure. La ventana de 45 min es solo la red de seguridad ante un agente que crashea sin `Stop`.
 - Logs de la function: `firebase functions:log --only agentHook --project steamdeck-semaforo`.
 
 ## 17. Cómo conservar el monitor actual de GitHub

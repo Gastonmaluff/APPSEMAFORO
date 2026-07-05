@@ -92,6 +92,24 @@ describe("deriveAgentVisual", () => {
     expect(v.visual).toBe("idle");
   });
 
+  it("tarea LARGA sin heartbeat sigue azul dentro de la ventana (30 min < 45)", () => {
+    const v = deriveAgentVisual(
+      rec({ tasks: { s: task({ startedAt: now - 30 * 60000, lastActivityAt: now - 30 * 60000 }) } }),
+      now,
+    );
+    expect(v.visual).toBe("working");
+  });
+
+  it("tarea LARGA con heartbeat reciente sigue azul aunque empezó hace mucho", () => {
+    // startedAt hace 2 h, pero un heartbeat la mantuvo viva hace 20 s -> working
+    const v = deriveAgentVisual(
+      rec({ tasks: { s: task({ startedAt: now - 2 * 3600 * 1000, lastActivityAt: now - 20_000 }) } }),
+      now,
+    );
+    expect(v.visual).toBe("working");
+    expect(v.since).toBe(now - 2 * 3600 * 1000); // el cronómetro respeta el inicio real
+  });
+
   it("hold del verde configurable", () => {
     const r = rec({ status: "completed", tasks: {}, lastCompletedAt: now - 200 * 1000 });
     expect(deriveAgentVisual(r, now, { greenHoldSec: 300 }).visual).toBe("completed");
